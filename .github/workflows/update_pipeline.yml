@@ -1,0 +1,40 @@
+name: Daily Model Update
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  update_model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install scikit-learn pandas numpy joblib schedule
+
+      - name: Run Model Update Script
+        run: python malaria_prediction_pipeline.py
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and Push Changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git add .
+          git commit -m "Automated daily model update" || exit 0
+          git push https://$GH_PAT@github.com/BolajiZ/Malaria_Incidence_rate.git main
+
