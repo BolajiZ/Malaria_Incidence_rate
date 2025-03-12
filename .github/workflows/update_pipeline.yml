@@ -1,4 +1,9 @@
 name: Daily Model Update
+- name: Install Dependencies
+  run: |
+    pip install -r requirements.txt
+    pip install pandas numpy scikit-learn joblib schedule
+
 
 on:
   schedule:
